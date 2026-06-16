@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="hhnl.My.JDownloader.Api.DependencyInjection/hhnl.My.JDownloader.Api.DependencyInjection.csproj" />
+  <Project Path="hhnl.My.JDownloader.Api.EndpointGenerator/hhnl.My.JDownloader.Api.EndpointGenerator.csproj" />
+  <Project Path="hhnl.My.JDownloader.Api.IntegrationTests/hhnl.My.JDownloader.Api.IntegrationTests.csproj" />
+  <Project Path="hhnl.My.JDownloader.Api/hhnl.My.JDownloader.Api.csproj" />
+</Solution>
