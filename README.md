@@ -152,3 +152,7 @@ options.HttpsCertificateMode = HttpsCertificateMode.Verify;
 ```
 
 Use `DisableRemoteConnections = true` when you want failures instead of falling back to the remote API.
+
+## Disclaimer
+
+This project is not affiliated with, endorsed by, or sponsored by the creators of JDownloader.
