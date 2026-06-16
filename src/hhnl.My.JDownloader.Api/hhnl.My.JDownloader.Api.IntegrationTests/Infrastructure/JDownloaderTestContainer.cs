@@ -1,6 +1,7 @@
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Images;
+using DotNet.Testcontainers.Networks;
 using hhnl.My.JDownloader.Api.Models;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,16 +16,18 @@ public sealed class JDownloaderTestContainer : IAsyncDisposable
 	private static readonly SemaphoreSlim _directConnectionImageLock = new(1, 1);
 	private static IFutureDockerImage? _containerImage;
 
-	private readonly IContainer _container;
-	private readonly JDownloaderTestSecrets _secrets;
-	private IServiceProvider? _serviceProviderNoDirectConnection;
-	private IServiceProvider? _serviceProviderDirectConnection;
+    private readonly IContainer _container;
+    private readonly INetwork _network;
+    private readonly JDownloaderTestSecrets _secrets;
+    private IServiceProvider? _serviceProviderNoDirectConnection;
+    private IServiceProvider? _serviceProviderDirectConnection;
 
-	private JDownloaderTestContainer(IContainer container, JDownloaderTestSecrets secrets)
-	{
-		_container = container;
-		_secrets = secrets;
-	}
+    private JDownloaderTestContainer(IContainer container, INetwork network, JDownloaderTestSecrets secrets)
+    {
+        _container = container;
+        _network = network;
+        _secrets = secrets;
+    }
 
 	public async Task<MyJDownloaderDevice> CreateDeviceClientAsync(bool disableDirectConnection = false, CancellationToken cancellationToken = default)
 	{
@@ -48,14 +51,23 @@ public sealed class JDownloaderTestContainer : IAsyncDisposable
 
 	public string DirectConnectionEndpoint => $"http://{_container.Hostname}:{_container.GetMappedPublicPort(DirectConnectionPort)}";
 
-	public static async Task<JDownloaderTestContainer> CreateAsync(CancellationToken cancellationToken = default)
-	{
-		var secrets = JDownloaderTestSecrets.Load();
+	internal INetwork Network => _network;
 
-		var image = await GetCustomizedImageAsync(cancellationToken);
+	internal JDownloaderTestSecrets Secrets => _secrets;
 
-		var waitStrategy = Wait.ForUnixContainer()
-			.UntilHttpRequestIsSucceeded(request => request.ForPort(WebPort))
+    public static async Task<JDownloaderTestContainer> CreateAsync(CancellationToken cancellationToken = default)
+    {
+        var secrets = JDownloaderTestSecrets.Load();
+
+        var image = await GetCustomizedImageAsync(cancellationToken);
+        var network = new NetworkBuilder()
+            .WithName($"hhnl-my-jdownloader-api-{Guid.NewGuid():N}")
+            .Build();
+
+        await network.CreateAsync(cancellationToken);
+
+        var waitStrategy = Wait.ForUnixContainer()
+            .UntilHttpRequestIsSucceeded(request => request.ForPort(WebPort))
 			.UntilExternalTcpPortIsAvailable(DirectConnectionPort);
 
 		var builder = new ContainerBuilder(image.FullName)
@@ -65,14 +77,15 @@ public sealed class JDownloaderTestContainer : IAsyncDisposable
 			.WithEnvironment("MYJDOWNLOADER_PASSWORD", secrets.Password)
 			.WithEnvironment("MYJDOWNLOADER_DEVICE_NAME", secrets.DeviceName)
 			.WithEnvironment("WEB_AUDIO", "0")
-			.WithEnvironment("WEB_FILE_MANAGER", "0")
-			.WithEnvironment("WEB_NOTIFICATION", "0")
-			.WithEnvironment("WEB_TERMINAL", "0")
-			.WithWaitStrategy(waitStrategy)
-			.WithPortBinding(DirectConnectionPort, true);
+            .WithEnvironment("WEB_FILE_MANAGER", "0")
+            .WithEnvironment("WEB_NOTIFICATION", "0")
+            .WithEnvironment("WEB_TERMINAL", "0")
+            .WithNetwork(network)
+            .WithWaitStrategy(waitStrategy)
+            .WithPortBinding(DirectConnectionPort, true);
 
-		return new JDownloaderTestContainer(builder.Build(), secrets);
-	}
+        return new JDownloaderTestContainer(builder.Build(), network, secrets);
+    }
 
 	public async Task StartAsync(CancellationToken cancellationToken)
 	{
@@ -91,8 +104,9 @@ public sealed class JDownloaderTestContainer : IAsyncDisposable
 		else if (_serviceProviderDirectConnection is IDisposable serviceProviderDirectConnection)
 			serviceProviderDirectConnection.Dispose();
 
-		await _container.DisposeAsync();
-	}
+        await _container.DisposeAsync();
+        await _network.DisposeAsync();
+    }
 
 	private static async Task<IFutureDockerImage> GetCustomizedImageAsync(CancellationToken cancellationToken)
 	{

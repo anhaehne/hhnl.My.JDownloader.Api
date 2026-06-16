@@ -309,9 +309,22 @@ static string NormalizeString(string s) => Regex.Replace(s, @"[^\x20-\x7F]", " "
 
 // Generate endpoint classes
 
+var endpointNamespaces = endpoints
+    .Select(x => x.Namespace)
+    .Where(x => x != "")
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList();
+
+var supersededEndpointNamespaces = endpointNamespaces
+    .Where(IsVersionedEndpointNamespace)
+    .Select(GetUnversionedEndpointNamespace)
+    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
 foreach (var endpointGroup in endpoints.GroupBy(x => x.Namespace))
 {
     if (endpointGroup.Key == "")
+        continue;
+    if (!IsVersionedEndpointNamespace(endpointGroup.Key) && supersededEndpointNamespaces.Contains(endpointGroup.Key))
         continue;
 
     var endpointGroupName = $"{CapitalizeFirstLetter(endpointGroup.Key)}Endpoint";
@@ -549,6 +562,12 @@ string GetTypeName(string typeRefIdString)
 }
 
 static string CapitalizeFirstLetter(string s) => char.ToUpper(s[0]) + s[1..];
+
+static bool IsVersionedEndpointNamespace(string endpointNamespace)
+    => Regex.IsMatch(endpointNamespace, @"v\d+$", RegexOptions.IgnoreCase);
+
+static string GetUnversionedEndpointNamespace(string endpointNamespace)
+    => Regex.Replace(endpointNamespace, @"v\d+$", "", RegexOptions.IgnoreCase);
 
 static string TypeNameOrRef(string name, int? typeRef)
     => typeRef is not null ? $"typeRef_{typeRef}" : name;

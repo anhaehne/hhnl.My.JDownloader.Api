@@ -6,172 +6,163 @@ namespace hhnl.My.JDownloader.Api;
 
 public class MyJDownloaderDevice
 {
-    private readonly MyJDownloaderServerClient _serverClient;
-    private readonly MyJDownloaderDeviceHttpClient _deviceHttpClient;
-    private readonly string? _baseUrl;
+	private readonly MyJDownloaderServerClient _serverClient;
+	private readonly MyJDownloaderDeviceHttpClient _deviceHttpClient;
+	private readonly string? _baseUrl;
 
-    public MyJDownloaderDevice(MyJDownloaderServerClient serverClient, MyJDownloaderDeviceHttpClient deviceClient, MyJDownloaderSession session, MyJdDeviceInfo deviceInfo, string? baseUrl)
-    {
-        Accounts = new(this);
-        AccountsV2 = new(this);
-        Captcha = new(this);
-        CaptchaForward = new(this);
-        Config = new(this);
-        Content = new(this);
-        ContentV2 = new(this);
-        Device = new(this);
-        Dialogs = new(this);
-        DownloadController = new(this);
-        DownloadEvents = new(this);
-        Downloads = new(this);
-        DownloadsV2 = new(this);
-        Events = new(this);
-        Extensions = new(this);
-        Extraction = new(this);
-        Flash = new(this);
-        Jd = new(this);
-        LinkCollector = new(this);
-        LinkCrawler = new(this);
-        LinkGrabberV2 = new(this);
-        Log = new(this);
-        Plugins = new(this);
-        Polling = new(this);
-        Reconnect = new(this);
-        Session = new(this);
-        System = new(this);
-        Toolbar = new(this);
-        Ui = new(this);
-        Update = new(this);
+	public MyJDownloaderDevice(MyJDownloaderServerClient serverClient, MyJDownloaderDeviceHttpClient deviceClient, MyJDownloaderSession session, MyJdDeviceInfo deviceInfo, string? baseUrl)
+	{
+		AccountsV2 = new(this);
+		Captcha = new(this);
+		CaptchaForward = new(this);
+		Config = new(this);
+		ContentV2 = new(this);
+		Device = new(this);
+		Dialogs = new(this);
+		DownloadController = new(this);
+		DownloadEvents = new(this);
+		DownloadsV2 = new(this);
+		Events = new(this);
+		Extensions = new(this);
+		Extraction = new(this);
+		Flash = new(this);
+		Jd = new(this);
+		LinkCollector = new(this);
+		LinkCrawler = new(this);
+		LinkGrabberV2 = new(this);
+		Log = new(this);
+		Plugins = new(this);
+		Polling = new(this);
+		Reconnect = new(this);
+		Session = new(this);
+		System = new(this);
+		Toolbar = new(this);
+		Ui = new(this);
+		Update = new(this);
 
-        CurrentSession = session;
-        CurrentDevice = deviceInfo;
-        _serverClient = serverClient;
-        _deviceHttpClient = deviceClient;
-        _baseUrl = baseUrl;
-    }
+		CurrentSession = session;
+		CurrentDevice = deviceInfo;
+		_serverClient = serverClient;
+		_deviceHttpClient = deviceClient;
+		_baseUrl = baseUrl;
+	}
 
-    public MyJdDeviceInfo CurrentDevice { get; }
+	public MyJdDeviceInfo CurrentDevice { get; }
 
-    public MyJDownloaderSession CurrentSession { private set; get; }
+	public MyJDownloaderSession CurrentSession { private set; get; }
 
-    public AccountsEndpoint Accounts { get; }
+	public AccountsV2Endpoint AccountsV2 { get; }
 
-    public AccountsV2Endpoint AccountsV2 { get; }
+	public CaptchaEndpoint Captcha { get; }
 
-    public CaptchaEndpoint Captcha { get; }
+	public CaptchaForwardEndpoint CaptchaForward { get; }
 
-    public CaptchaForwardEndpoint CaptchaForward { get; }
+	public ConfigEndpoint Config { get; }
 
-    public ConfigEndpoint Config { get; }
+	public ContentV2Endpoint ContentV2 { get; }
 
-    public ContentEndpoint Content { get; }
+	public DeviceEndpoint Device { get; }
 
-    public ContentV2Endpoint ContentV2 { get; }
+	public DialogsEndpoint Dialogs { get; }
 
-    public DeviceEndpoint Device { get; }
+	public DownloadControllerEndpoint DownloadController { get; }
 
-    public DialogsEndpoint Dialogs { get; }
+	public DownloadEventsEndpoint DownloadEvents { get; }
 
-    public DownloadControllerEndpoint DownloadController { get; }
+	public DownloadsV2Endpoint DownloadsV2 { get; }
 
-    public DownloadEventsEndpoint DownloadEvents { get; }
+	public EventsEndpoint Events { get; }
 
-    public DownloadsEndpoint Downloads { get; }
+	public ExtensionsEndpoint Extensions { get; }
 
-    public DownloadsV2Endpoint DownloadsV2 { get; }
+	public ExtractionEndpoint Extraction { get; }
 
-    public EventsEndpoint Events { get; }
+	public FlashEndpoint Flash { get; }
 
-    public ExtensionsEndpoint Extensions { get; }
+	public JdEndpoint Jd { get; }
 
-    public ExtractionEndpoint Extraction { get; }
+	public LinkCollectorEndpoint LinkCollector { get; }
 
-    public FlashEndpoint Flash { get; }
+	public LinkCrawlerEndpoint LinkCrawler { get; }
 
-    public JdEndpoint Jd { get; }
+	public LinkGrabberV2Endpoint LinkGrabberV2 { get; }
 
-    public LinkCollectorEndpoint LinkCollector { get; }
+	public LogEndpoint Log { get; }
 
-    public LinkCrawlerEndpoint LinkCrawler { get; }
+	public PluginsEndpoint Plugins { get; }
 
-    public LinkGrabberV2Endpoint LinkGrabberV2 { get; }
+	public PollingEndpoint Polling { get; }
 
-    public LogEndpoint Log { get; }
+	public ReconnectEndpoint Reconnect { get; }
 
-    public PluginsEndpoint Plugins { get; }
+	public SessionEndpoint Session { get; }
 
-    public PollingEndpoint Polling { get; }
+	public SystemEndpoint System { get; }
 
-    public ReconnectEndpoint Reconnect { get; }
+	public ToolbarEndpoint Toolbar { get; }
 
-    public SessionEndpoint Session { get; }
+	public UiEndpoint Ui { get; }
 
-    public SystemEndpoint System { get; }
+	public UpdateEndpoint Update { get; }
 
-    public ToolbarEndpoint Toolbar { get; }
+	public async Task<TReturn> RequestAsync<TReturn>(string url, object[]? parameters = null, CancellationToken cancellationToken = default)
+	{
+		var fullUrl = _baseUrl is null ? url : $"{_baseUrl.TrimEnd('/')}/{url.TrimStart('/')}";
+		var deviceState = MyJDownloaderDeviceState.Authenticated;
 
-    public UiEndpoint Ui { get; }
-
-    public UpdateEndpoint Update { get; }
-
-    public async Task<TReturn> RequestAsync<TReturn>(string url, object[]? parameters = null, CancellationToken cancellationToken = default)
-    {
-        var fullUrl = _baseUrl is null ? url : $"{_baseUrl.TrimEnd('/')}/{url.TrimStart('/')}";
-        var deviceState = MyJDownloaderDeviceState.Authenticated;
-
-        while (!cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                if(deviceState == MyJDownloaderDeviceState.Authenticated)
-                {
-                    var response = await _deviceHttpClient.RequestAsync<TReturn>(fullUrl, CurrentDevice.Id, CurrentSession, parameters, cancellationToken);
-                    return response;
-                }
-                else if(deviceState == MyJDownloaderDeviceState.TokenExpired)
-                {
-                    // Try to renew session and repeat request
-                    CurrentSession = await _serverClient.RenewSessionAsync(CurrentSession, cancellationToken);
-                    deviceState = MyJDownloaderDeviceState.Authenticated;
-                }
-                else if(deviceState == MyJDownloaderDeviceState.AuthenticationFailed)
-                {
-                    // Try to login again and repeat request
-                    CurrentSession = await _serverClient.LoginAsync(CurrentSession, cancellationToken);
-                    deviceState = MyJDownloaderDeviceState.Authenticated;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Invalid device state: {deviceState}");
-                }
-            }
-            catch (MyJDownloaderApiRequestException ex) when (ex.Error.Type == "TOKEN_INVALID")
-            {
-                deviceState = MyJDownloaderDeviceState.TokenExpired;
-            }
-            catch (MyJDownloaderApiRequestException ex) when (ex.Error.Type == "AUTH_FAILED")
-            {
-                if(deviceState == MyJDownloaderDeviceState.AuthenticationFailed)
-                {
-                    // Already tried to login again, give up
-                    throw;
-                }
+		while (!cancellationToken.IsCancellationRequested)
+		{
+			try
+			{
+				if (deviceState == MyJDownloaderDeviceState.Authenticated)
+				{
+					var response = await _deviceHttpClient.RequestAsync<TReturn>(fullUrl, CurrentDevice.Id, CurrentSession, parameters, cancellationToken);
+					return response;
+				}
+				else if (deviceState == MyJDownloaderDeviceState.TokenExpired)
+				{
+					// Try to renew session and repeat request
+					CurrentSession = await _serverClient.RenewSessionAsync(CurrentSession, cancellationToken);
+					deviceState = MyJDownloaderDeviceState.Authenticated;
+				}
+				else if (deviceState == MyJDownloaderDeviceState.AuthenticationFailed)
+				{
+					// Try to login again and repeat request
+					CurrentSession = await _serverClient.LoginAsync(CurrentSession, cancellationToken);
+					deviceState = MyJDownloaderDeviceState.Authenticated;
+				}
+				else
+				{
+					throw new InvalidOperationException($"Invalid device state: {deviceState}");
+				}
+			}
+			catch (MyJDownloaderApiRequestException ex) when (ex.Error.Type == "TOKEN_INVALID")
+			{
+				deviceState = MyJDownloaderDeviceState.TokenExpired;
+			}
+			catch (MyJDownloaderApiRequestException ex) when (ex.Error.Type == "AUTH_FAILED")
+			{
+				if (deviceState == MyJDownloaderDeviceState.AuthenticationFailed)
+				{
+					// Already tried to login again, give up
+					throw;
+				}
 
 
-                deviceState = MyJDownloaderDeviceState.AuthenticationFailed;
-            }
-        }
+				deviceState = MyJDownloaderDeviceState.AuthenticationFailed;
+			}
+		}
 
-        throw new OperationCanceledException("The request was cancelled.", cancellationToken);
-    }
+		throw new OperationCanceledException("The request was cancelled.", cancellationToken);
+	}
 
-    public Task RequestAsync(string url, object[]? parameters = null, CancellationToken cancellationToken = default)
-        => RequestAsync<object>(url, parameters, cancellationToken);
+	public Task RequestAsync(string url, object[]? parameters = null, CancellationToken cancellationToken = default)
+		=> RequestAsync<object>(url, parameters, cancellationToken);
 
-    private enum MyJDownloaderDeviceState
-    {
-        Authenticated,
-        TokenExpired,
-        AuthenticationFailed
-    }
+	private enum MyJDownloaderDeviceState
+	{
+		Authenticated,
+		TokenExpired,
+		AuthenticationFailed
+	}
 }

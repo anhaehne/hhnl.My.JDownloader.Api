@@ -12,9 +12,4 @@
         <PackageReference Include="AngleSharp" Version="1.5.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <!--<ProjectReference Include="..\dependencies\My.JDownloader.Api\My.JDownloader.Api.csproj" />
-      <ProjectReference Include="..\hhnl.My.JDownloader.Api\hhnl.My.JDownloader.Api.csproj" />-->
-    </ItemGroup>
-
 </Project>

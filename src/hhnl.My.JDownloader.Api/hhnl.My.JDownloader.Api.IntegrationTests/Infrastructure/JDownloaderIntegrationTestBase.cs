@@ -7,14 +7,17 @@ public abstract class JDownloaderIntegrationTestBase
 	private static readonly SemaphoreSlim _containerLock = new(1, 1);
 	private static JDownloaderTestContainer? _container;
 
-	public TestContext TestContext { get; set; } = null!;
+    public TestContext TestContext { get; set; } = null!;
 
-	protected static JDownloaderTestContainer Container
-		=> _container ?? throw new InvalidOperationException("The JDownloader test container was not initialized.");
+    protected static JDownloaderTestContainer Container
+        => _container ?? throw new InvalidOperationException("The JDownloader test container was not initialized.");
 
-	[ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
-	public static async Task ClassInitialize(TestContext testContext)
-	{
+    protected Task<MyJDownloaderDevice> CreateDeviceClientAsync(bool disableDirectConnection = false)
+        => Container.CreateDeviceClientAsync(disableDirectConnection, TestContext.CancellationToken);
+
+    [ClassInitialize(InheritanceBehavior.BeforeEachDerivedClass)]
+    public static async Task ClassInitialize(TestContext testContext)
+    {
 		await EnsureContainerAsync(testContext.CancellationToken);
 	}
 
